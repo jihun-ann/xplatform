@@ -80,7 +80,7 @@ public class ListController {
 		
 
 		ModelAndView mav = new ModelAndView();
-		mav.setViewName("test");
+		mav.setViewName("boardList");
 		mav.addObject("count", Integer.valueOf(count));
 		mav.addObject("currentPage", Integer.valueOf(currentPage));
 		mav.addObject("list", list);
