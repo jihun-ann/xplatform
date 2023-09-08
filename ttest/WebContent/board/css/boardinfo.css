@@ -1,0 +1,78 @@
+#insertBoard{
+	width: 700px;
+	height: auto;
+	margin: 0 auto;
+}
+table{
+	width: 100%;
+	border: 1px solid black;
+	border-collapse: collapse;
+	text-align: center;
+}
+td{
+	height: 35px;
+	border: 1px solid black;
+}
+.boardTab{
+	width: 200px;
+}
+.inputText{
+	width: 300px;
+	height: 22px;
+}
+textarea, #textarea{
+	resize:none;	
+	width: 600px;
+	min-height: 400px;
+	margin: 5px auto;
+	text-align: start;
+	word-break: break-all;
+}
+#btnlst{
+	float: right;
+	margin-top: 5px;
+}
+.btn{
+	margin: 3px;
+}
+
+.modal{
+	display:none;
+	width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background: rgb(0 0 0 / 50%);
+}
+#modal-delete, #modal-update{
+	display:none;
+	position: absolute;
+    width: 400px;
+    height: 200px;
+    top: 50%;
+    left: 50%;
+    background: snow;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+}
+.modalDBtn-y,.modalUBtn-y{
+	width: 100px;
+	background: dodgerblue;
+	color:snow;
+	cursor: pointer;
+}
+.modalDBtn-n,.modalDBtn-n{
+	width: 100px;
+	background: snow;
+	cursor: pointer;
+}
+#fileDownload{
+	min-width : 120px;
+	height: 30px;
+	display: inline-block;
+	margin: 0 auto;
+}

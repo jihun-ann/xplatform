@@ -1,0 +1,7 @@
+sqlplus
+id : system
+pass : 1
+@C:\oraclexe\app\oracle\product\10.2.0\server\RDBMS\ADMIN\scott.sql
+
+conn / as sysdba
+exec dbms_xdb.sethttpport(8090);

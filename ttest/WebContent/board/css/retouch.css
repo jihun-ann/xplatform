@@ -1,0 +1,35 @@
+#insertBoard{
+	width: 700px;
+	height: auto;
+	margin: 0 auto;
+}
+table{
+	width: 100%;
+	border: 1px solid black;
+	border-collapse: collapse;
+	text-align: center;
+}
+td{
+	height: 35px;
+	border: 1px solid black;
+}
+.boardTab{
+	width: 200px;
+}
+.inputText{
+	width: 300px;
+	height: 22px;
+}
+textarea{
+	resize:none;	
+	width: 600px;
+	height: 400px;
+	margin: 5px;
+}
+#submitBtn{
+	float: right;
+	margin-top: 5px;
+}
+.hiddeninput{
+	display:none;
+}

@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper   
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"   
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">  
+
+<mapper namespace="BoardDao">  
+
+	<select id="boardList" parameterType="map" resultType="BoardVO">
+		select SEQ,NAME,TITLE,CONTENT,HIT,TO_CHAR(REGDATE, 'YYYY-MM-DD HH24:mm:SS') AS REGDATE, replyseq  from 
+		(select a.*, rownum rnum from (
+		SELECT b.*, rp.*
+		FROM board b
+		LEFT JOIN reply rp ON b.seq = rp.boardno
+		left join bridge bd on b.seq = bd.boardno 
+		START WITH originno is null
+		CONNECT BY PRIOR b.seq = rp.originno
+		ORDER SIBLINGS BY b.seq desc)a)
+		<![CDATA[
+		WHERE rnum between #{start} AND #{end}		
+		]]>			
+	</select>
+	
+	<select id="boardListSearch" parameterType="map" resultType="BoardVO">
+        select SEQ,NAME,TITLE,CONTENT,HIT,TO_CHAR(REGDATE, 'YYYY-MM-DD HH24:mm:SS') AS REGDATE, replyseq from 
+		(select a.*, rownum rnum from (
+		SELECT b.*, rp.*
+		FROM board b
+		LEFT JOIN reply rp ON b.seq = rp.boardno
+		left join bridge bd on b.seq = bd.boardno 
+		<if test="keyField == 'title'">
+			where b.title like '%'||#{keyWord}||'%'
+		</if>
+		<if test="keyField == 'name'">
+			where b.name like '%'||#{keyWord}||'%'
+		</if>
+		<if test="keyField == 'content'">
+			where b.content like '%'||#{keyWord}||'%'
+		</if>
+		<if test="keyField == 'all'">
+			where b.title like '%'||#{keyWord}||'%' or b.name like '%'||#{keyWord}||'%' or b.content like '%'||#{keyWord}||'%' or bd.filename like '%'||#{keyWord}||'%' 
+		</if>
+        START WITH originno is null
+		CONNECT BY PRIOR b.seq = rp.originno
+		ORDER SIBLINGS BY b.seq desc)a)
+		<![CDATA[
+		WHERE rnum between #{start} AND #{end}		
+		]]>			
+	</select>
+	
+	<select id="boardCount" parameterType="map" resultType="Integer">
+		SELECT COUNT(*)	FROM BOARD 
+	</select>
+	
+	<select id="boardCountSearch" parameterType="map" resultType="Integer">
+        select COUNT(*)from 
+		(select a.*, rownum rnum from (
+		SELECT b.*, rp.*
+		FROM board b
+		LEFT JOIN reply rp ON b.seq = rp.boardno
+		left join bridge bd on b.seq = bd.boardno 
+		<if test="keyField == 'title'">
+			where b.title like '%'||#{keyWord}||'%'
+		</if>
+		<if test="keyField == 'name'">
+			where b.name like '%'||#{keyWord}||'%'
+		</if>
+		<if test="keyField == 'content'">
+			where b.content like '%'||#{keyWord}||'%'
+		</if>
+		<if test="keyField == 'all'">
+			where b.title like '%'||#{keyWord}||'%' or b.name like '%'||#{keyWord}||'%' or b.content like '%'||#{keyWord}||'%' or bd.filename like '%'||#{keyWord}||'%' 
+		</if>
+        START WITH originno is null
+		CONNECT BY PRIOR b.seq = rp.originno
+		ORDER SIBLINGS BY rp.replyno, rp.boardno, b.seq)a)
+        		
+	</select>
+	
+	<select id="boardInfo" parameterType="int" resultType="BoardVO">
+		select SEQ,NAME,TITLE,CONTENT,HIT,TO_CHAR(REGDATE, 'YYYY-MM-DD HH24:mm:SS') AS REGDATE, replyseq from board b
+		left join reply rp on b.seq = rp.boardno
+		where b.seq = #{seq}
+	</select>
+	
+	<update id="boardHitPlus1" parameterType="int">
+		update board set hit = hit+1 where seq =#{seq}
+	</update>
+	
+	<select id="boardPassC" parameterType="map" resultType="int">
+		select nvl2(max(title),1,0) from board where seq = #{seq} and pass = #{pass} 
+	</select>
+	
+	<delete id="boardDelete" parameterType="int">
+		delete from board where seq = #{seq}
+	</delete>
+	
+	<delete id="replyDelete" parameterType="int">
+		delete from reply where boardno = #{seq}
+	</delete>
+	
+	<insert id="newBoardInsert" parameterType="map" >
+		insert into board(seq,name, title, content, pass, hit, regdate) values(board_seq.nextval,#{name},#{title},#{content},#{pass},0,systimestamp)
+	</insert>
+	
+	<select id="boardseqCurrval" resultType="int">
+		select board_seq.currval from dual
+	</select>
+	
+	<insert id="boardFileSave" parameterType="map">
+		insert into bridge(boardno,filename) values(#{seq},#{filename})
+	</insert>
+	<select id="boardFileCheck" parameterType="int" resultType="String">
+		select nvl(filename,'noFile') from bridge where boardno=#{seq} 
+	</select>
+	
+	<delete id="boardFileDelete" parameterType="int">
+		delete from bridge where boardno =#{seq}
+	</delete>
+	
+	<update id="boardUpdate" parameterType="map">
+		update board set title=#{title},name=#{name},pass=#{pass},content=#{content} where seq=#{seq}
+	</update>
+	
+	<update id="boardFileUpdate" parameterType="map">
+		update bridge set filename=#{filename} where boardno=#{seq}
+	</update>
+	
+	<select id="replyCount" parameterType="int" resultType="int">
+		select nvl(max(replyno),0) from reply where boardno= #{seq}
+	</select>
+	
+	<select id="replyOriginno" parameterType="int" resultType="int">
+		select nvl(max(originno),0) from reply where boardno= #{seq}
+	</select>
+	
+	<select id="replySeq" parameterType="int" resultType="int">
+		select replyseq  from reply where boardno = #{seq}
+	</select>
+	
+	<update id="originnoUpdate" parameterType="map">
+		<if test="originno != 0">
+			update reply set originno =#{originno} where originno =#{seq}
+		</if>
+		<if test="originno == 0">
+			update reply set originno = '' where originno =#{seq}
+		</if>
+	</update>
+	
+	<select id="replyCountMax" parameterType="int" resultType="int">
+		select  nvl(max(replyno),0)  from reply where originno = #{seq}
+	</select>
+	
+	<insert id="replySave" parameterType="map">
+		<if test="originno == 'null'">
+			insert into reply(replyno,replyseq,boardno) values(#{replyno},#{replyseq},#{seq})
+		</if>
+		<if test="originno != 'null'">
+			insert into reply(originno,replyno,replyseq,boardno) values(#{originno},#{replyno},#{replyseq},#{seq})
+		</if>
+	</insert>
+</mapper>
+
+
+
+
+
+
+
